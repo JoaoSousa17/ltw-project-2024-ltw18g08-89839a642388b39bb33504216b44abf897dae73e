@@ -6,7 +6,7 @@ if (session_status() == PHP_SESSION_NONE) {
 function getCurrentUser() {
     if (isset($_SESSION['username']) && is_string($_SESSION['username'])) {
         $db = getDatabaseConnection();
-        $stmt = $db->prepare('SELECT username, currency FROM user WHERE username = ?');
+        $stmt = $db->prepare('SELECT username, currency, is_admin FROM user WHERE username = ?');
         $stmt->execute([$_SESSION['username']]);
         $user = $stmt->fetch(PDO::FETCH_ASSOC);
         return $user ? $user : null;

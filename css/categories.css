@@ -14,6 +14,17 @@
     font-weight: bold; /* Título mais destacado */
 }
 
+.page-indicator h1 {
+    margin: 0;
+    font-size: 2em;
+    font-weight: bold; /* Título mais destacado */
+}
+
+.separar{
+    margin-top: 25px;
+    margin-bottom: 10px;
+}
+
 /* Estilo para a seção de categorias */
 .background {
     background-color: #D3D3D3; /* Mesma cor de fundo */
@@ -124,6 +135,84 @@
     color: white;
     margin-bottom: 10px;
 }
+
+.category-delete-button {
+    background-color: #e74c3c;
+    color: #fff;
+    padding: 10px 20px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    text-decoration: none;
+    transition: background-color 0.3s;
+}
+
+.category-delete-button:hover {
+    background-color: #c0392b;
+}
+
+.add-category-container {
+    display: flex;
+    justify-content: center;
+    margin-top: 20px;
+}
+
+.category-delete-container{
+    margin-top: 60px;
+    margin-bottom: 15px;
+}
+
+/* Estilo Formulário Adição Categoria */
+/* CSS Adicional para addCategory.php */
+.add-category-form-container {
+    background-color: #333; /* Cor de fundo */
+    padding: 20px;
+    border-radius: 5px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); /* Sombra opcional */
+    max-width: 500px;
+    margin: 0 auto; /* Centralizar o formulário */
+}
+
+.add-category-form-container h2 {
+    text-align: center;
+    margin-bottom: 20px;
+    color: #e74c3c;
+}
+
+.add-category-form-container form {
+    display: flex;
+    flex-direction: column;
+}
+
+.add-category-form-container label {
+    margin-bottom: 5px;
+    font-weight: bold;
+    color: white;
+}
+
+.add-category-form-container input[type="text"],
+.add-category-form-container input[type="file"] {
+    margin-bottom: 20px;
+    padding: 10px;
+    border: 1px solid #333; /* Cor da borda */
+    border-radius: 5px;
+}
+
+.add-category-form-container input[type="submit"] {
+    background-color: #e74c3c; /* Cor do botão */
+    color: white;
+    padding: 10px 20px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: background-color 0.3s;
+}
+
+.add-category-form-container input[type="submit"]:hover {
+    background-color: #c0392b; /* Cor do botão ao passar o mouse */
+}
+
+
 
 /* Responsividade */
 @media (max-width: 768px) {

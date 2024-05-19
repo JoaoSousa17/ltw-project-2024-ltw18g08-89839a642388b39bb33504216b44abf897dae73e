@@ -3,9 +3,6 @@ function drawProfilePage($profileUser, $loggedUser) {
     // Obtenha os dados do perfil
     $profile = getUser($profileUser);
 
-    // Log para depuração
-    error_log('Profile Data: ' . var_export($profile, true));
-
     // Verifica se o perfil foi encontrado
     if (!$profile) {
         echo 'Erro: Usuário não encontrado.';
@@ -14,10 +11,14 @@ function drawProfilePage($profileUser, $loggedUser) {
 
     // Determina qual perfil desenhar com base no usuário logado
     $isCurrentUser = $profileUser == $loggedUser;
+    $currentUser = getCurrentUser();
+    $isAdmin = $currentUser ? $currentUser['is_admin'] : false;
+
     $editProfileLink = $isCurrentUser ? '<a href="/../pages/editProfile.php" class="profile-action-button">Edit Profile</a>' : '';
     $createItemLink = $isCurrentUser ? '<a href="/../pages/createItem.php" class="profile-action-button">Create Item</a>' : '';
     $deleteAccountLink = $isCurrentUser ? '<a href="/../actions/action_delete_account.php" class="profile-action-button">Delete Account</a>' : '';
     $viewItemsLink = !$isCurrentUser ? '<a href="/../pages/sales.php?user=' . htmlspecialchars($profileUser) . '" class="profile-action-button">View Items for Sale</a>' : '';
+    $adminDeleteAccountLink = $isAdmin && !$isCurrentUser ? '<a href="/../actions/action_delete_user_account.php?user=' . htmlspecialchars($profileUser) . '" class="profile-action-button admin-delete-button">Delete User Account</a>' : '';
     ?>
 
     <div class="profile-container">
@@ -35,6 +36,7 @@ function drawProfilePage($profileUser, $loggedUser) {
                 <?= $createItemLink ?>
                 <?= $deleteAccountLink ?>
                 <?= $viewItemsLink ?>
+                <?= $adminDeleteAccountLink ?>
             </div>
         </div>
     </div>

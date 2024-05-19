@@ -8,8 +8,13 @@ include_once(__DIR__ . '/../database/currency.php');
 
 
 // Obtém o usuário dos itens à venda a partir do parâmetro da URL
-$user = urldecode($_GET['user']);
-$username = $_SESSION['username'] ?? NULL;
+$user = isset($_GET['user']) ? urldecode($_GET['user']) : null;
+$username = $_SESSION['username'] ?? null;
+
+// Se o usuário não estiver definido, use o usuário logado
+if ($user === null) {
+    $user = $username;
+}
 
 // Log para depuração
 error_log('Sales Page User: ' . $user);

@@ -63,8 +63,8 @@ function drawBoughtItems($username) {
                 <?php
                 if (empty($transactions)) {
                     ?>
-                    <h2 id="NoPurchases">You haven't purchased any items yet.</h2>
-                    <p>Explore our marketplace and find items to purchase!</p>
+                    <h2 class="NoPurchases">You haven't purchased any items yet.</h2>
+                    <h3 class= "NoPurchases">Explore our marketplace and find items to purchase!</h3>
                     <?php
                 } else {
                     foreach ($transactions as $transaction) {
@@ -85,6 +85,47 @@ function drawBoughtItems($username) {
                     }
                 }
                 ?>
+            </section>
+        </div>
+    </div>
+    <?php
+}
+
+function drawSoldItems($username) {
+    $user = getUser($username);
+    if (!$user) {
+        echo 'User not found.';
+        return;
+    }
+
+    $soldItems = getSoldItems($user['user_id']);
+    ?>
+
+    <div class="sold-items-container">
+        <div class="sold-items-card">
+            <h1 class="sold-items-title">Sold Items</h1>
+            <section class="sold-items-list">
+                <?php if (empty($soldItems)): ?>
+                    <h2>You haven't sold any items yet!</h2>
+                <?php else: ?>
+                    <?php foreach ($soldItems as $transaction): ?>
+                        <?php
+                        $items = separateItems($transaction['item_id']);
+                        foreach ($items as $item_id):
+                            $itemDetails = getItemById($item_id);
+                            if (!$itemDetails) continue;
+                            ?>
+                            <div class="sold-item">
+                                <img src="/../database/images/items/thumbnails_medium/<?= htmlspecialchars($itemDetails['item_pictures']) ?>.jpg" alt="<?= htmlspecialchars($itemDetails['title']) ?>" class="sold-item-image">
+                                <div class="sold-item-details">
+                                    <h2><a href="/../pages/item.php?id=<?= htmlspecialchars($itemDetails['item_id']) ?>"><?= htmlspecialchars($itemDetails['title']) ?></a></h2>
+                                    <p><span class= "bold">Sold to: </span><?= htmlspecialchars($transaction['name']) ?></p>
+                                    <p><span class= "bold">Shipping Address: </span><?= htmlspecialchars($transaction['address']) ?></p>
+                                </div>
+                            </div>
+                        <?php endforeach; ?>
+                    <?php endforeach; ?>
+                <?php endif; ?>
             </section>
         </div>
     </div>

@@ -130,3 +130,83 @@
     font-size: 0.9em;
     color: white;
 }
+
+.NoPurchases{
+    color: white;
+    text-align: center;
+    margin-bottom: 0px;
+}
+
+/* Estilo para página de Itens vendidos */
+.sold-items-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 40px 20px;
+    background-color: #D3D3D3;
+}
+
+.sold-items-card {
+    background-color: #333;
+    color: #333;
+    padding: 20px;
+    border-radius: 10px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    text-align: center;
+    width: 100%;
+    max-width: 800px;
+}
+
+.sold-items-title {
+    font-size: 2em;
+    margin-bottom: 20px;
+    font-weight: bold;
+    color: #e74c3c;
+}
+
+.sold-items-list {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+    color: white;
+}
+
+.sold-item {
+    display: flex;
+    align-items: center;
+    gap: 20px;
+    padding: 20px;
+    background-color: #444;
+    border-radius: 10px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.sold-item-image {
+    width: 100px;
+    height: 100px;
+    border-radius: 10px;
+    object-fit: cover;
+}
+
+.sold-item-details {
+    text-align: left;
+}
+
+.sold-item-details h2 {
+    font-size: 1.5em;
+    margin-bottom: 10px;
+}
+
+.sold-item-details h2 a{
+    text-decoration: none;
+    color: #e74c3c;
+}
+
+.sold-item-details p {
+    margin: 5px 0;
+    font-size: 1em;
+}
+
+.bold{
+    font-weight: bold;
+}

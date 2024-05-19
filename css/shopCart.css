@@ -58,13 +58,14 @@
 .shopping-cart-item-details h2 {
     margin: 0px;
     margin-top: 10px;
+    margin-bottom: 15px;
 }
 
 .shopping-cart-item-details h2 a {
     font-size: 1.5em;
     color: #e74c3c;
     text-decoration: none;
-    margin-bottom: 5px;
+    margin-bottom: 15px;
     margin-top: 5px;
 }
 

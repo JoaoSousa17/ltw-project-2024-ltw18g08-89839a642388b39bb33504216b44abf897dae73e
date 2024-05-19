@@ -244,4 +244,7 @@ function getBoughtItems($user_id) {
         return [];
     }
 }
+
+
+
 ?>

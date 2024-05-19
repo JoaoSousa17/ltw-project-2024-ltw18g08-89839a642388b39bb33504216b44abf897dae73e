@@ -27,7 +27,7 @@ function hashPassword($password): string
 function createUser($email, $username, $password, $location, $address, $postal_code, $currency) {
     $db = getDatabaseConnection();
     try {
-        $stmt = $db->prepare('INSERT INTO user (email, username, password, location, address, postal_code, currency) VALUES (?, ?, ?, ?, ?, ?, ?)');
+        $stmt = $db->prepare('INSERT INTO user (email, is_admin, username, password, location, address, postal_code, currency) VALUES (?, 1, ?, ?, ?, ?, ?, ?)');
         $stmt->execute([$email, $username, $password, $location, $address, $postal_code, $currency]);
         return true;
     } catch (PDOException $e) {
@@ -169,6 +169,23 @@ function getShopCart($username) {
         return array(); // Retorna um array vazio em caso de erro
     }
 }
+
+/*function getShopCartDetails($username) {
+    $db = getDatabaseConnection();
+    $cartItems = [];
+
+    try {
+        $stmt = $db->prepare('SELECT * FROM item WHERE item_id IN (SELECT shopcart FROM user WHERE username = ?)');
+        $stmt->execute(array($username));
+        while ($item = $stmt->fetch(PDO::FETCH_ASSOC)) {
+            $cartItems[] = $item;
+        }
+    } catch (PDOException $e) {
+        error_log("Error fetching shopcart details for $username: " . $e->getMessage());
+    }
+
+    return $cartItems;
+}*/
 
 function deleteShopCart($username)
 {
@@ -464,6 +481,42 @@ function registerUser($email, $username, $hashed_password, $location, $address, 
         $stmt->execute(array($email, $username, $hashed_password, $location, $address, $postal_code, $currency));
         return true;
     } catch (PDOException $e) {
+        return false;
+    }
+}
+
+function getAllUsers() {
+    $db = getDatabaseConnection();
+    try {
+        $stmt = $db->prepare('SELECT * FROM user');
+        $stmt->execute();
+        return $stmt->fetchAll(PDO::FETCH_ASSOC);
+    } catch (PDOException $e) {
+        error_log('Error fetching users: ' . $e->getMessage());
+        return [];
+    }
+}
+
+function promoteUserToAdmin($user_id) {
+    $db = getDatabaseConnection();
+    try {
+        $stmt = $db->prepare('UPDATE user SET is_admin = 1 WHERE user_id = ?');
+        $stmt->execute(array($user_id));
+        return true;
+    } catch (PDOException $e) {
+        error_log('Error promoting user: ' . $e->getMessage());
+        return false;
+    }
+}
+
+function deleteUser($user_id) {
+    $db = getDatabaseConnection();
+    try {
+        $stmt = $db->prepare('DELETE FROM user WHERE user_id = ?');
+        $stmt->execute(array($user_id));
+        return true;
+    } catch (PDOException $e) {
+        error_log('Error deleting user: ' . $e->getMessage());
         return false;
     }
 }

@@ -15,6 +15,7 @@ function drawHeader($username, $userImage = '/path/to/default_image.png') { ?>
         <link rel="stylesheet" href="../css/itemsSellingAndBought.css">
         <link rel="stylesheet" href="../css/shopCart.css">
         <link rel="stylesheet" href="../css/recipe.css">
+        <link rel="stylesheet" href="../css/allUsers.css">
         <script src="/../javascript/basic.js"></script>
         <script src="/../javascript/auth.js"></script>
         <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -54,8 +55,11 @@ function drawHeader($username, $userImage = '/path/to/default_image.png') { ?>
                         <li><a href="../pages/wishlist.php">Wishlist</a></li>
                         <li><a href="../pages/purchases.php">Purchases</a></li>
                         <li><a href="../pages/sales.php">Items on Sell</a></li>
-                        <li><a href="../pages/sales.php">Items Sold</a></li>
+                        <li><a href="../pages/soldItems.php">Items Sold</a></li>
                         <li><a href="../pages/messages_list.php">Messages</a></li>
+                        <?php if ($profile['is_admin']): ?>
+                            <li><a href="../pages/allUsers.php">Show Users</a></li>
+                        <?php endif; ?>
                         <li><a href="../actions/action_logout.php">Logout</a></li>
                     <?php else: ?>
                         <li><a href="../pages/login.php">Login</a></li>
