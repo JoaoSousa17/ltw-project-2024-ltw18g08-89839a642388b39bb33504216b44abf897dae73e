@@ -60,7 +60,7 @@ function drawShopCart($username) {
                         Total: <?= $formattedGrandTotal ?>
                     </div>
                     <div class="shopping-cart-checkout">
-                        <a id="checkout-button" href="/../pages/checkout.php">Checkout</a>
+                        <a id="checkout-button" href="/../pages/payment.php">Checkout</a>
                     </div>
                     <?php
                 }

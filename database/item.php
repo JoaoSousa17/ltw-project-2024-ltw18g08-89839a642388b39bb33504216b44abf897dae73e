@@ -232,4 +232,16 @@ function getUserIdByUsername($username) {
     $stmt->execute(array($username));
     return $stmt->fetchColumn();
 }
+
+function getBoughtItems($user_id) {
+    $db = getDatabaseConnection();
+    try {
+        $stmt = $db->prepare('SELECT * FROM transactions WHERE buyer_id = ?');
+        $stmt->execute(array($user_id));
+        return $stmt->fetchAll(PDO::FETCH_ASSOC);
+    } catch(PDOException $e) {
+        error_log('Erro ao buscar transações: ' . $e->getMessage());
+        return [];
+    }
+}
 ?>

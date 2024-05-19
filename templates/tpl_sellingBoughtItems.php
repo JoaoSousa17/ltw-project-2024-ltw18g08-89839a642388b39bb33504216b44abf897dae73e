@@ -44,4 +44,50 @@ function drawItemsOnSell($username) {
 
     <?php
 }
+
+function drawBoughtItems($username) {
+    $user = getUser($username);
+    if (!$user) {
+        echo 'User not found.';
+        return;
+    }
+
+    $user_id = $user['user_id'];
+    $transactions = getBoughtItems($user_id);
+
+    ?>
+    <div class="bought-items-container">
+        <div class="bought-items-card">
+            <h1 class="bought-items-title">Purchased Items</h1>
+            <section class="bought-items-list">
+                <?php
+                if (empty($transactions)) {
+                    ?>
+                    <h2 id="NoPurchases">You haven't purchased any items yet.</h2>
+                    <p>Explore our marketplace and find items to purchase!</p>
+                    <?php
+                } else {
+                    foreach ($transactions as $transaction) {
+                        $items = separateItems($transaction['item_id']);
+                        foreach ($items as $item_id) {
+                            $item = getItemById($item_id);
+                            ?>
+                            <div class="bought-item">
+                                <img src="/../database/images/items/thumbnails_medium/<?= htmlspecialchars($item['item_pictures']) ?>.jpg" alt="<?= htmlspecialchars($item['title']) ?>" class="bought-item-image">
+                                <div class="bought-item-details">
+                                    <h2><a href="/../pages/item.php?id=<?= htmlspecialchars($item['item_id']) ?>"><?= htmlspecialchars($item['title']) ?></a></h2>
+                                    <p class="bought-item-price">$<?= htmlspecialchars($item['price']) ?></p>
+                                    <p class="bought-item-transaction-date">Purchased on: <?= htmlspecialchars(transData($transaction['transaction_date'])) ?></p>
+                                </div>
+                            </div>
+                            <?php
+                        }
+                    }
+                }
+                ?>
+            </section>
+        </div>
+    </div>
+    <?php
+}
 ?>

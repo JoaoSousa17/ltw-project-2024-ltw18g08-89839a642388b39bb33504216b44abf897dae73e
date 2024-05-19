@@ -4,10 +4,7 @@ if (session_status() == PHP_SESSION_NONE) {
 }
 
 function getCurrentUser() {
-    if (session_status() === PHP_SESSION_NONE) {
-        session_start();
-    }
-    if (isset($_SESSION['username'])) {
+    if (isset($_SESSION['username']) && is_string($_SESSION['username'])) {
         $db = getDatabaseConnection();
         $stmt = $db->prepare('SELECT username, currency FROM user WHERE username = ?');
         $stmt->execute([$_SESSION['username']]);
@@ -16,6 +13,7 @@ function getCurrentUser() {
     }
     return null;
 }
+
 
 function setCurrentUser($username){
     $_SESSION['username'] = $username;

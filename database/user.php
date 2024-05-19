@@ -38,12 +38,23 @@ function createUser($email, $username, $password, $location, $address, $postal_c
     }
 }
 
-
 function getUser($username) {
+    if (!is_string($username)) {
+        error_log('Error: username is not a string');
+        return false;
+    }
+
     $db = getDatabaseConnection();
     $stmt = $db->prepare('SELECT * FROM user WHERE username = ?');
     $stmt->execute(array($username));
-    return $stmt->fetch(PDO::FETCH_ASSOC);
+    $user = $stmt->fetch(PDO::FETCH_ASSOC);
+
+    if (!$user) {
+        error_log("User not found for username: " . $username);
+        return false;
+    }
+
+    return $user;
 }
 
 function getUsernameById($userId) {
@@ -130,22 +141,34 @@ function getMessages($username)
     }
 }
 
-function getShopCart($username)
-{
+function getShopCart($username) {
+    error_log("getShopCart called with username: $username");
+
+    if (!is_string($username)) {
+        error_log('Error: username is not a string');
+        return array();
+    }
+
     $db = getDatabaseConnection();
     try {
         $stmt = $db->prepare('SELECT shopcart FROM user WHERE username = ?');
         $stmt->execute(array($username));
         $result = $stmt->fetchColumn();
+
         if ($result === false || $result === null) {
+            error_log("No items found in shopcart for username: $username");
             return array(); // Retorna um array vazio se não houver itens no carrinho
         }
-        return explode(',', $result);
-    } catch(PDOException $e) {
+
+        $shopCartItems = explode(',', $result);
+        error_log("ShopCart Items for $username: " . print_r($shopCartItems, true)); // Adicionar log para depuração
+
+        return $shopCartItems;
+    } catch (PDOException $e) {
+        error_log("Error fetching shopcart for $username: " . $e->getMessage()); // Adicionar log para depuração
         return array(); // Retorna um array vazio em caso de erro
     }
 }
-
 
 function deleteShopCart($username)
 {
@@ -197,33 +220,53 @@ function addToShopCart($username, $item_id): bool
     }
 }
 
-function createTransaction($buyer, $address, $city, $zip, $country)
-{
+function createTransaction($buyer, $address, $city, $zip, $country) {
+    error_log("createTransaction called with parameters: buyer=$buyer, address=$address, city=$city, zip=$zip, country=$country");
+
+    if (!is_string($buyer) || !is_string($address) || !is_string($city) || !is_string($zip) || !is_string($country)) {
+        error_log("Error: one or more parameters are not strings");
+        return "Error creating transaction";
+    }
+
     $db = getDatabaseConnection();
-    $buyer_id = getUser($buyer)['user_id'];
+    $buyer_info = getUser($buyer);
+
+    if (!$buyer_info) {
+        error_log("Buyer not found for username: " . $buyer);
+        return "Buyer not found";
+    }
+
+    $buyer_id = $buyer_info['user_id'];
     $sellers = joinSellers($buyer);
-    $completeAddress=joinAddress($address,$city,$zip,$country);
-
-
+    $completeAddress = joinAddress($address, $city, $zip, $country);
     $items = getShopCart($buyer);
     $item = implode(',', $items);
+    $totalPrice = calculateTotalPrice($items);
 
+    error_log('Creating transaction for buyer_id: ' . $buyer_id); // Depuração
+    error_log('Sellers: ' . $sellers); // Depuração
+    error_log('Complete Address: ' . $completeAddress); // Depuração
+    error_log('Items: ' . $item); // Depuração
+    error_log('Total Price: ' . $totalPrice); // Depuração
 
-    $totalPrice=calculateTotalPrice($items);
+    if ($sellers && $buyer_id && $items && $totalPrice && $completeAddress && $buyer) {
+        try {
+            $stmt = $db->prepare('INSERT INTO transactions (buyer_id, seller_id, item_id, total_price, address, name) VALUES (?, ?, ?, ?, ?, ?)');
+            $stmt->execute(array($buyer_id, $sellers, $item, $totalPrice, $completeAddress, $buyer));
+            deleteShopCart($buyer);
+            $transaction_id = $db->lastInsertId('transaction_id');
 
-       if($sellers&&$buyer_id&&$items&&$totalPrice&&$completeAddress&&$buyer) {
-           try {
-               $stmt = $db->prepare('INSERT INTO transactions(buyer_id, seller_id, item_id, total_price,address,name) VALUES(?, ?, ?, ?,?,?)');
-               $stmt->execute(array($buyer_id, $sellers, $item, $totalPrice, $completeAddress, $buyer));
-               deleteShopCart($buyer);
-               return $db->lastInsertId('transaction_id');
-
-           } catch (PDOException $e) {
-               return "Error creating database transaction";
-           }
-
-       }
-         else return "Error creating transaction";
+            error_log('Transaction created with ID: ' . $transaction_id); // Depuração
+            return $transaction_id;
+        } catch (PDOException $e) {
+            error_log('PDOException: ' . $e->getMessage()); // Depuração
+            return "Error creating database transaction";
+        }
+    } else {
+        error_log("Error creating transaction: Missing data or invalid values");
+        error_log("sellers: $sellers, buyer_id: $buyer_id, items: " . print_r($items, true) . ", totalPrice: $totalPrice, completeAddress: $completeAddress, buyer: $buyer");
+        return "Error creating transaction";
+    }
 }
 
 function joinSellers($username): string
@@ -238,14 +281,20 @@ function joinSellers($username): string
     $sellers = array_unique($sellers);
     return implode(',', $sellers);
 }
+
 function separateSellers($sellers): array
 {
     return explode(',', $sellers);
 }
-function separateItems($items): array
+
+function separateItems($itemString)
 {
-    return explode(',', $items);
+    if ($itemString === null || $itemString === '') {
+        return array(); // Return an empty array if the string is null or empty
+    }
+    return explode(',', $itemString);
 }
+
 function joinAddress($address,$city,$zip,$country): string
 {
     return $address . ", " . $city . ", " . $country . ", " . $zip;
@@ -261,6 +310,7 @@ function getTransaction($transaction_id)
         return false;
     }
 }
+
 
 function removeFromShopCart($username, $item_id): bool
 {

@@ -52,3 +52,81 @@
 .items-on-sell-container h1 a:hover{
     text-decoration: underline;
 }
+
+/* Estilo para a página de itens comprados*/
+.bought-items-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 40px 20px;
+    background-color: #D3D3D3;
+}
+
+.bought-items-card {
+    background-color: #333;
+    color: #333;
+    padding: 40px;
+    border-radius: 10px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    width: 100%;
+    max-width: 800px;
+}
+
+.bought-items-title {
+    font-size: 2em;
+    margin-bottom: 20px;
+    text-align: center;
+    color: #e74c3c;
+}
+
+.bought-items-list {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+
+.bought-item {
+    display: flex;
+    gap: 20px;
+    padding: 20px;
+    background-color: #444;
+    border-radius: 10px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.bought-item-image {
+    width: 150px;
+    height: 150px;
+    border-radius: 10px;
+    object-fit: cover;
+}
+
+.bought-item-details {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+}
+
+.bought-item-details h2 {
+    margin: 0 0 10px;
+}
+
+.bought-item-details h2 a{
+    margin: 0 0 10px;
+    text-decoration: none;
+    color:#e74c3c;
+}
+
+.bought-item-details h2 a:hover{
+    text-decoration: underline;
+}
+
+.bought-item-price {
+    font-size: 1.2em;
+    color: #e74c3c;
+}
+
+.bought-item-transaction-date {
+    font-size: 0.9em;
+    color: white;
+}
