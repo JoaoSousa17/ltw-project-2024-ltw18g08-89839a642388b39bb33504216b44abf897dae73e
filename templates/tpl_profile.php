@@ -1,12 +1,10 @@
 <?php
-include_once(__DIR__ . '/../database/user.php'); // Ajuste o caminho conforme necessário
-
 function drawProfilePage($profileUser, $loggedUser) {
     // Obtenha os dados do perfil
     $profile = getUser($profileUser);
 
     // Log para depuração
-    error_log('Profile Data: ' . print_r($profile, true));
+    error_log('Profile Data: ' . var_export($profile, true));
 
     // Verifica se o perfil foi encontrado
     if (!$profile) {
@@ -42,7 +40,6 @@ function drawProfilePage($profileUser, $loggedUser) {
     </div>
     <?php
 }
-
 
 function drawEditProfilePage($User) {
     $profile = getUser($User); ?>

@@ -5,7 +5,7 @@ include_once(__DIR__ . '/../utils/session.php');
 include_once(__DIR__ . '/../database/user.php');
 include_once (__DIR__ . '/../database/item.php');
 
-$profileUser = urldecode($_GET['id']);
+$profileUser = isset($_GET['id']) ? urldecode($_GET['id']) : null;
 $current_user = getCurrentUser();
 $loggedUser = $current_user ? $current_user['username'] : null;
 

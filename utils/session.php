@@ -4,7 +4,13 @@ if (session_status() == PHP_SESSION_NONE) {
 }
 
 function getCurrentUser() {
-    return $_SESSION['username'] ?? null;
+    if (session_status() === PHP_SESSION_NONE) {
+        session_start();
+    }
+    if (isset($_SESSION['username'])) {
+        return ['username' => $_SESSION['username']];
+    }
+    return null;
 }
 
 function setCurrentUser($username){
