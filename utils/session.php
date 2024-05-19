@@ -8,7 +8,11 @@ function getCurrentUser() {
         session_start();
     }
     if (isset($_SESSION['username'])) {
-        return ['username' => $_SESSION['username']];
+        $db = getDatabaseConnection();
+        $stmt = $db->prepare('SELECT username, currency FROM user WHERE username = ?');
+        $stmt->execute([$_SESSION['username']]);
+        $user = $stmt->fetch(PDO::FETCH_ASSOC);
+        return $user ? $user : null;
     }
     return null;
 }
