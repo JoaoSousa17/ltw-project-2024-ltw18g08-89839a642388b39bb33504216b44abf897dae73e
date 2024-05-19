@@ -24,20 +24,18 @@ if (addToWishList($username, $item_id)) {
     echo "Failed to add item to shopcart";
 }*/?>
 <?php
-include_once(__DIR__ . '/../utils/session.php'); // Include session utilities
-include_once(__DIR__ . '/../database/item.php'); // Include item-related functions
-include_once(__DIR__ . '/../database/user.php'); // Include user-related functions
+include_once(__DIR__ . '/../utils/session.php');
+include_once(__DIR__ . '/../database/item.php');
+include_once(__DIR__ . '/../database/user.php');
 
-// Get current user from session
-$username = getCurrentUser();
+$current_user = getCurrentUser();
+$username = $current_user ? $current_user['username'] : null;
 
-// Check if user is logged in
 if (!$username) {
     header('Location: ../pages/login.php');
     exit;
 }
 
-// Check if item ID is set in the URL
 if (!isset($_GET['id'])) {
     echo "Item ID is missing.";
     exit;
@@ -45,11 +43,9 @@ if (!isset($_GET['id'])) {
 
 $item_id = $_GET['id'];
 
-// Depuração: Exibir usuário atual e ID do item
-echo "Current user: " . $username . "<br>";
-echo "Item ID: " . $item_id . "<br>";
+echo "Current user: " . htmlspecialchars($username) . "<br>";
+echo "Item ID: " . htmlspecialchars($item_id) . "<br>";
 
-// Depuração: Verificar chamada da função addToWishList
 echo "Calling addToWishList function...<br>";
 
 if (addToWishList($username, $item_id)) {
@@ -59,4 +55,3 @@ if (addToWishList($username, $item_id)) {
 } else {
     echo "Failed to add item to wishlist.<br>";
 }
-?>
