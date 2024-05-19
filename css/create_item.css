@@ -1,0 +1,77 @@
+/* ********************************************************************
+STANDARD THE PROFILE AND AUX and Items it s kinda confusing
+creat just one for forms and one for which if it specific
+*********************************************************************** */
+
+#create-item{
+    width: 100%;
+    background-color: white;
+    border-radius: 5px;
+    border: 1px solid var(--gray-color);
+    padding: 1.5em;
+}
+#create-item h1{
+    text-align: center;
+    font-size: 3em;
+    margin: 0.5em 0;
+}
+#create-item h3{
+    text-align: center;
+    font-size: 1em;
+    margin: 0.5em auto;
+    background-color: var(--midnight-color);
+    border-radius: 5px;
+    padding: 1em;
+    width: 10%;
+}
+#create-item h3 a{
+    text-decoration: none;
+    color: white;
+}
+
+#container-photo-item{
+    background-color: var(--purple-background-color);
+    padding-top: 3em;
+    padding-bottom: 3em;
+    border-radius: 5px;
+    width: 40%;
+    margin: 0 auto;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+}
+#product-photo{
+    border-radius: 5px;
+    width: 20em;
+}
+#container-photo-item img{
+    width: 40%;
+    height: 40%;
+    border-radius: 5px;
+}
+
+#create-item input[type='text'],
+#create-item input[type='number'],
+#create-item select{
+    width: 20%;
+    height: 4em;
+    padding: 5px;
+    margin: 8px 0;
+    border: 1px solid var(--midnight-color);
+    border-radius: 5px;
+    box-sizing: border-box;
+    font-size: 1em;
+
+}
+#create-item textarea{
+    resize: none;
+    width: 20%;
+    height: 10em;
+    padding: 5px;
+    margin: 8px 0;
+    border: 1px solid var(--midnight-color);
+    border-radius: 5px;
+    box-sizing: border-box;
+    font-size: 1em;
+}

@@ -1,0 +1,27 @@
+body{
+    --blue-color:#4279ff;
+    --midnight-color:#000a22;
+    --purple-color:#420066;
+    --purple-background-color:rgba(66, 0, 102, 0.75);
+    --midnight-background-color: rgba(0, 10, 34, 0.35);
+    --gray-color:#e5e5e6;
+    font-family: "Montserrat", sans-serif;
+}
+.background{
+    background-color:white;
+    padding-top: 2em;
+    padding-bottom: 2em;
+    border-radius: 5px;
+}
+footer{
+    background-color: var(--midnight-color);
+    color: white;
+    padding: 1em;
+    font-family: "Montserrat", sans-serif;
+    border-radius: 5px;
+}
+/***************************************
+FONT FOR THE PROJECT
+font-family: "Montserrat", sans-serif;
+***************************************/
+
