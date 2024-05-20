@@ -233,3 +233,4 @@ function drawSearchResults($search = '', $category = null, $priceRange = null) {
     </div>
     <?php
 }
+

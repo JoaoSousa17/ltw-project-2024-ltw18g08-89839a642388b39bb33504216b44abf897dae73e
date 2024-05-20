@@ -79,10 +79,9 @@ function getItemById($item_id) {
     return $stmt->fetch(PDO::FETCH_ASSOC); // Certifique-se de que retorna um array associativo
 }
 
-function getItemByTitle($search = null, $category = null, $priceRange = null) {
+function getItemByTitle($search = '', $category = null, $priceRange = null) {
     $db = getDatabaseConnection();
-
-    $query = 'SELECT * FROM item WHERE 1=1';
+    $query = 'SELECT * FROM item WHERE status = "available"';
     $params = [];
 
     if ($search) {
@@ -96,34 +95,22 @@ function getItemByTitle($search = null, $category = null, $priceRange = null) {
     }
 
     if ($priceRange) {
-        switch ($priceRange) {
-            case '0-50':
-                $query .= ' AND price BETWEEN 0 AND 50';
-                break;
-            case '50-100':
-                $query .= ' AND price BETWEEN 50 AND 100';
-                break;
-            case '100-200':
-                $query .= ' AND price BETWEEN 100 AND 200';
-                break;
-            case '200+':
-                $query .= ' AND price > 200';
-                break;
+        if ($priceRange == '0-50') {
+            $query .= ' AND price BETWEEN 0 AND 50';
+        } elseif ($priceRange == '50-100') {
+            $query .= ' AND price BETWEEN 50 AND 100';
+        } elseif ($priceRange == '100-200') {
+            $query .= ' AND price BETWEEN 100 AND 200';
+        } elseif ($priceRange == '200+') {
+            $query .= ' AND price > 200';
         }
     }
 
-    error_log('Query: ' . $query);
-    error_log('Params: ' . print_r($params, true));
-
-    try {
-        $stmt = $db->prepare($query);
-        $stmt->execute($params);
-        return $stmt->fetchAll(PDO::FETCH_ASSOC);
-    } catch (PDOException $e) {
-        error_log('Erro ao buscar itens: ' . $e->getMessage());
-        return [];
-    }
+    $stmt = $db->prepare($query);
+    $stmt->execute($params);
+    return $stmt->fetchAll(PDO::FETCH_ASSOC);
 }
+
 
 function getItemsByCategory($category_id) {
     $db = getDatabaseConnection();
