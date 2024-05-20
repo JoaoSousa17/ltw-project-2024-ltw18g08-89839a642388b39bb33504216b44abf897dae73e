@@ -10,20 +10,6 @@ function getItems($count) {
     return $stmt->fetchAll();
 }
 
-
-function getCategories() {
-    $db = getDatabaseConnection();
-
-    try {
-        $stmt = $db->prepare('SELECT * FROM category');
-        $stmt->execute();
-        return $stmt->fetchAll(PDO::FETCH_ASSOC);
-    } catch (PDOException $e) {
-        error_log('Erro ao buscar categorias: ' . $e->getMessage());
-        return [];
-    }
-}
-
 function createNewItem($title, $description, $price, $category_id, $seller_id){
     $db = getDatabaseConnection();
 
@@ -125,13 +111,6 @@ function getItemsByUserId($user_id){
     $stmt = $db->prepare('SELECT * FROM item WHERE seller_id = ?');
     $stmt->execute(array($user_id));
     return $stmt->fetchAll();
-}
-
-function getCategoryById($category_id){
-    $db = getDatabaseConnection();
-    $stmt = $db->prepare('SELECT * FROM category WHERE category_id = ?');
-    $stmt->execute(array($category_id));
-    return $stmt->fetch();
 }
 
 function calculateTotalPrice($items){

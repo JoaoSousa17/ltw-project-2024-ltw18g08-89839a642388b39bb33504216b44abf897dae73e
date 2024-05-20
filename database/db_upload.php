@@ -33,6 +33,59 @@ function uploadProfileImage($username, $tmp)
     return false;
 }
 
+function uploadCategoryImage($categoryId, $tmp)
+{
+    $db = getDatabaseConnection();
+
+    // Check if a file was uploaded
+    if ($tmp) {
+        // Fetch current category image filename
+        $stmt = $db->prepare('SELECT icon_path FROM category WHERE category_id = ?');
+        $stmt->execute(array($categoryId));
+        $img_name = $stmt->fetchColumn();
+
+        // Delete old category image if it's not the default one
+        if ($img_name != "images/categories_icon/default") {
+            $oldFilePath = __DIR__ . "/../$img_name";
+            if (file_exists($oldFilePath)) {
+                unlink($oldFilePath);
+            }
+        }
+
+        // Define the new file names
+        $newFileName = "category_$categoryId.jpg";
+        $originalFileName = __DIR__ . "/../database/images/categories_icon/originals/$newFileName";
+        $mediumFileName = __DIR__ . "/../database/images/categories_icon/thumbnails_medium/$newFileName";
+        $smallFileName = __DIR__ . "/../database/images/categories_icon/thumbnails_small/$newFileName";
+
+        // Create directories if they do not exist
+        if (!file_exists(dirname($originalFileName))) {
+            mkdir(dirname($originalFileName), 0777, true);
+        }
+        if (!file_exists(dirname($mediumFileName))) {
+            mkdir(dirname($mediumFileName), 0777, true);
+        }
+        if (!file_exists(dirname($smallFileName))) {
+            mkdir(dirname($smallFileName), 0777, true);
+        }
+
+        // Update the database with the new image path
+        $stmt = $db->prepare('UPDATE category SET icon_path = ? WHERE category_id = ?');
+        $stmt->execute(array("images/categories_icon/thumbnails_small/$newFileName", $categoryId));
+
+        // Upload and manipulate image
+        if (uploadImage($tmp['tmp_name'], $originalFileName, $mediumFileName, $smallFileName)) {
+            error_log('Image uploaded successfully.');
+            return true;
+        } else {
+            error_log('Failed to upload image.');
+            return false;
+        }
+    } else {
+        return true;
+    }
+}
+
 function uploadItemImage($itemId, $imageName, $tmpFile)
 {
     if ($tmpFile) {

@@ -141,23 +141,6 @@ function getMessages($username)
     }
 }
 
-/*function getShopCartDetails($username) {
-    $db = getDatabaseConnection();
-    $cartItems = [];
-
-    try {
-        $stmt = $db->prepare('SELECT * FROM item WHERE item_id IN (SELECT shopcart FROM user WHERE username = ?)');
-        $stmt->execute(array($username));
-        while ($item = $stmt->fetch(PDO::FETCH_ASSOC)) {
-            $cartItems[] = $item;
-        }
-    } catch (PDOException $e) {
-        error_log("Error fetching shopcart details for $username: " . $e->getMessage());
-    }
-
-    return $cartItems;
-}*/
-
 function deleteShopCart($username)
 {
     $db = getDatabaseConnection();
@@ -331,64 +314,6 @@ function createTransaction($buyer, $address, $city, $zip, $country) {
     }
 }
 
-/*function createTransaction($buyer, $address, $city, $zip, $country) {
-    error_log("createTransaction called with parameters: buyer=$buyer, address=$address, city=$city, zip=$zip, country=$country");
-
-    if (!is_string($buyer) || !is_string($address) || !is_string($city) || !is_string($zip) || !is_string($country)) {
-        error_log("Error: one or more parameters are not strings");
-        return "Error creating transaction";
-    }
-
-    $db = getDatabaseConnection();
-    $buyer_info = getUser($buyer);
-
-    if (!$buyer_info) {
-        error_log("Buyer not found for username: " . $buyer);
-        return "Buyer not found";
-    }
-
-    $buyer_id = $buyer_info['user_id'];
-    $sellers = joinSellers($buyer);
-    $completeAddress = joinAddress($address, $city, $zip, $country);
-    $items = getShopCart($buyer);
-    $item = implode(',', $items);
-    $totalPrice = calculateTotalPrice($items);
-
-    error_log('Creating transaction for buyer_id: ' . $buyer_id); // Depuração
-    error_log('Sellers: ' . $sellers); // Depuração
-    error_log('Complete Address: ' . $completeAddress); // Depuração
-    error_log('Items: ' . $item); // Depuração
-    error_log('Total Price: ' . $totalPrice); // Depuração
-
-    if ($sellers && $buyer_id && $items && $totalPrice && $completeAddress && $buyer) {
-        try {
-            $stmt = $db->prepare('INSERT INTO transactions (buyer_id, seller_id, item_id, total_price, address, name) VALUES (?, ?, ?, ?, ?, ?)');
-            $stmt->execute(array($buyer_id, $sellers, $item, $totalPrice, $completeAddress, $buyer));
-            
-            // Update status of each item to 'sold'
-            foreach ($items as $item_id) {
-                $updateStmt = $db->prepare('UPDATE item SET status = ? WHERE item_id = ?');
-                $updateStmt->execute(['sold', $item_id]);
-            }
-
-            deleteShopCart($buyer);
-            $transaction_id = $db->lastInsertId('transaction_id');
-
-            error_log('Transaction created with ID: ' . $transaction_id); // Depuração
-            return $transaction_id;
-        } catch (PDOException $e) {
-            error_log('PDOException: ' . $e->getMessage()); // Depuração
-            return "Error creating database transaction";
-        }
-    } else {
-        error_log("Error creating transaction: Missing data or invalid values");
-        error_log("sellers: $sellers, buyer_id: $buyer_id, items: " . print_r($items, true) . ", totalPrice: $totalPrice, completeAddress: $completeAddress, buyer: $buyer");
-        return "Error creating transaction";
-    }
-}*/
-
-
-
 function joinSellers($username): string
 {
     $items = getShopCart($username);
@@ -431,22 +356,6 @@ function getTransaction($transaction_id)
     }
 }
 
-/*function getWishlist($username)
-{
-    $db = getDatabaseConnection();
-    try {
-        $stmt = $db->prepare('SELECT wishlist FROM user WHERE username = ?');
-        $stmt->execute(array($username));
-        $result = $stmt->fetchColumn();
-        if ($result !== false && $result !== null) {
-            return explode(',', $result);
-        }
-        return array(); // Return an empty array if no items found in the wishlist
-    } catch(PDOException $e) {
-        return false;
-    }
-}*/
-
 function getWishlist($username) {
     error_log("getWishlist called with username: $username");
 
@@ -473,22 +382,6 @@ function getWishlist($username) {
         return array(); // Retorna um array vazio em caso de erro
     }
 }
-
-
-/*function addToWishList($username, $item_id): bool
-{
-    $db = getDatabaseConnection();
-    try {
-        $existingWishList = getWishList($username);
-        $existingWishList[] = $item_id;
-        $newWishList = implode(',', $existingWishList);
-        $stmt = $db->prepare('UPDATE user SET wishlist = ? WHERE username = ?');
-        $stmt->execute(array($newWishList, $username));
-        return true;
-    } catch(PDOException $e) {
-        return false;
-    }
-}*/
 
 function addToWishList($username, $item_id): bool
 {
