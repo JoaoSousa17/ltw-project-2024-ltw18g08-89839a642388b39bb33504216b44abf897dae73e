@@ -1,21 +1,32 @@
 <?php
-include_once(__DIR__ . "/../utils/session.php"); // Include session utilities
-include_once (__DIR__ . '/../database/item.php'); // Include item-related functions
-include_once (__DIR__ . '/../database/user.php'); // Include user-related functions
+include_once(__DIR__ . '/../utils/session.php');
+include_once(__DIR__ . '/../database/item.php');
+include_once(__DIR__ . '/../database/user.php');
 
-$username = getCurrentUser();
+$current_user = getCurrentUser();
+$username = $current_user ? $current_user['username'] : null;
 
-if (!is_string($username)) {
-    error_log('Error: username is not a string');
-    echo "Invalid user session.";
+if (!$username) {
+    header('Location: ../pages/login.php');
+    exit;
+}
+
+if (!isset($_GET['id'])) {
+    echo "Item ID is missing.";
     exit;
 }
 
 $item_id = $_GET['id'];
 
+echo "Current user: " . htmlspecialchars($username) . "<br>";
+echo "Item ID: " . htmlspecialchars($item_id) . "<br>";
+
+echo "Calling removeFromWishList function...<br>";
+
 if (removeFromWishList($username, $item_id)) {
+    echo "Item successfully removed from wishlist.<br>";
     header('Location: ../pages/wishlist.php');
+    exit;
 } else {
-    echo "Failed to remove item from wishlist";
+    echo "Failed to remove item from wishlist.<br>";
 }
-?>

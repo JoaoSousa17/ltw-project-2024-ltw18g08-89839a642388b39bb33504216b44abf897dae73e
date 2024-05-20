@@ -237,7 +237,9 @@ function drawWishlist($username) {
                         if (!$item) continue;
                         $itemDetails = getItemById($item);
                         if (!$itemDetails || $itemDetails['status'] == 'sold') continue;
-                        if (is_numeric($itemDetails['price'])) {
+
+                        // Verificação de preços e conversão
+                        if (isset($itemDetails['price']) && is_numeric($itemDetails['price'])) {
                             $convertedPrice = convertCurrency(floatval($itemDetails['price']), 'dollar', $currency);
                             $formattedPrice = formatCurrency($convertedPrice, $currency);
                         } else {
@@ -263,6 +265,7 @@ function drawWishlist($username) {
     </div>
     <?php
 }
+
 
 
 

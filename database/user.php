@@ -170,127 +170,117 @@ function deleteShopCart($username)
     }
 }
 
-function addToShopCart($username, $item_id): bool
-{
+function addToShopCart($username, $item_id): bool {
     error_log("addToShopCart called with username: $username and item_id: $item_id");
 
-    // Ensure the inputs are valid
-    if (!is_string($username) || !is_numeric($item_id)) {
-        error_log('Invalid input: username should be a string and item_id should be a number.');
-        return false;
-    }
-
     $db = getDatabaseConnection();
-    if (!$db) {
-        error_log('Database connection failed.');
-        return false;
-    }
-
-    // Verify that the user exists
-    $userStmt = $db->prepare('SELECT COUNT(*) FROM user WHERE username = ?');
-    $userStmt->execute([$username]);
-    $userExists = $userStmt->fetchColumn() > 0;
-
-    if (!$userExists) {
-        error_log("User $username does not exist.");
-        return false;
-    }
-
-    // Verify that the item exists
-    $itemStmt = $db->prepare('SELECT COUNT(*) FROM item WHERE item_id = ?');
-    $itemStmt->execute([$item_id]);
-    $itemExists = $itemStmt->fetchColumn() > 0;
-
-    if (!$itemExists) {
-        error_log("Item $item_id does not exist.");
-        return false;
-    }
-
     try {
-        // Retrieve existing shopping cart
         $existingShopCart = getShopCart($username);
-        error_log("Existing shopping cart for user $username: " . implode(',', $existingShopCart));
+        error_log("Existing shopcart for $username: " . print_r($existingShopCart, true));
 
-        // If item is already in the shopping cart, no need to add again
-        if (in_array($item_id, $existingShopCart)) {
-            error_log("Item $item_id is already in the shopping cart for user $username.");
-            return true;
+        if (!is_array($existingShopCart)) {
+            $existingShopCart = [];
         }
 
-        // Add item to the shopping cart
+        if (in_array($item_id, $existingShopCart)) {
+            error_log("Item $item_id already in shopcart for username: $username");
+            return true; // Item já está no carrinho, não precisa adicionar novamente
+        }
+
         $existingShopCart[] = $item_id;
         $newShopCart = implode(',', $existingShopCart);
-        error_log("New shopping cart for user $username: " . $newShopCart);
 
-        // Update the shopping cart in the database
-        $stmt = $db->prepare('UPDATE user SET shopping_cart = ? WHERE username = ?');
-        $stmt->execute([$newShopCart, $username]);
+        error_log("Updated shopcart for $username: " . print_r($newShopCart, true));
+
+        // Atualizar o carrinho no banco de dados
+        $stmt = $db->prepare('UPDATE user SET shopcart = ? WHERE username = ?');
+        $stmt->execute(array($newShopCart, $username));
 
         if ($stmt->rowCount() > 0) {
-            error_log("Item $item_id successfully added to the shopping cart for user $username.");
+            error_log("Successfully updated shopcart for username: $username");
             return true;
         } else {
-            error_log("Failed to update the shopping cart for user $username.");
+            error_log("No rows affected when updating shopcart for username: $username");
             return false;
         }
-    } catch (PDOException $e) {
-        error_log('PDOException: ' . $e->getMessage());
+    } catch(PDOException $e) {
+        error_log("Error adding to shopcart: " . $e->getMessage());
         return false;
     }
 }
 
-function getShopCart($username)
-{
-    $db = getDatabaseConnection();
-    if (!$db) {
-        error_log('Database connection failed.');
+
+
+
+
+function getShopCart($username) {
+    error_log("getShopCart called with username: $username");
+
+    if (!is_string($username)) {
+        error_log('Error: username is not a string');
         return array();
     }
 
+    $db = getDatabaseConnection();
     try {
-        $stmt = $db->prepare('SELECT shopping_cart FROM user WHERE username = ?');
-        $stmt->execute([$username]);
+        $stmt = $db->prepare('SELECT shopcart FROM user WHERE username = ?');
+        $stmt->execute(array($username));
         $result = $stmt->fetchColumn();
-        if ($result !== false && $result !== null) {
-            $items = array_filter(explode(',', $result));
-            error_log("Shopping cart items for user $username: " . implode(',', $items));
-            return $items;
+
+        if ($result === false || $result === null) {
+            error_log("No items found in shopcart for username: $username");
+            return array(); // Retorna um array vazio se não houver itens no carrinho
         }
-        return array(); // Return an empty array if no items found in the shopping cart
+
+        $shopCartItems = explode(',', $result);
+        error_log("ShopCart Items for $username: " . print_r($shopCartItems, true)); // Adicionar log para depuração
+
+        return $shopCartItems;
     } catch (PDOException $e) {
-        error_log('Error fetching shopping cart: ' . $e->getMessage());
-        return array();
+        error_log("Error fetching shopcart for $username: " . $e->getMessage()); // Adicionar log para depuração
+        return array(); // Retorna um array vazio em caso de erro
     }
 }
 
-function removeFromShopCart($username, $item_id): bool
-{
-    $db = getDatabaseConnection();
-    if (!$db) {
-        error_log('Database connection failed.');
-        return false;
-    }
+function removeFromShopCart($username, $item_id): bool {
+    error_log("removeFromShopCart called with username: $username and item_id: $item_id");
 
+    $db = getDatabaseConnection();
     try {
         $existingCart = getShopCart($username);
-        error_log("Existing shopping cart before removal for user $username: " . implode(',', $existingCart));
+        error_log("Existing shopcart for $username: " . print_r($existingCart, true));
 
-        $newCart = array_filter($existingCart, function ($item) use ($item_id) {
-            return $item != $item_id;
-        });
+        if (!is_array($existingCart)) {
+            error_log("Error: existingCart is not an array");
+            return false;
+        }
+
+        $newCart = array();
+        foreach ($existingCart as $item) {
+            if ($item != $item_id) {
+                $newCart[] = $item;
+            }
+        }
 
         $newCartString = implode(',', $newCart);
-        error_log("New shopping cart after removal for user $username: " . $newCartString);
+        error_log("New shopcart for $username after removal: " . print_r($newCartString, true));
 
-        $stmt = $db->prepare('UPDATE user SET shopping_cart = ? WHERE username = ?');
-        $stmt->execute([$newCartString, $username]);
+        $stmt = $db->prepare('UPDATE user SET shopcart = ? WHERE username = ?');
+        $stmt->execute(array($newCartString, $username));
 
-        return $stmt->rowCount() > 0;
-    } catch (PDOException $e) {
-        error_log('Error removing from shop cart: ' . $e->getMessage());
+        if ($stmt->rowCount() > 0) {
+            error_log("Successfully updated shopcart for username: $username");
+            return true;
+        } else {
+            error_log("No rows affected when updating shopcart for username: $username");
+            return false;
+        }
+    } catch(PDOException $e) {
+        error_log("Error removing from shopcart: " . $e->getMessage());
         return false;
     }
 }
+
 
 function createTransaction($buyer, $address, $city, $zip, $country) {
     error_log("createTransaction called with parameters: buyer=$buyer, address=$address, city=$city, zip=$zip, country=$country");
@@ -540,35 +530,48 @@ function addToWishList($username, $item_id): bool
     }
 }
 
-function removeFromWishList($username, $item_id): bool {
-    error_log("removeFromWishList called with username: $username and item_id: $item_id");
-
-    if (!is_string($username)) {
-        error_log('Error: username is not a string');
-        return false;
-    }
-
+function removeFromWishList($username, $item_id): bool
+{
     $db = getDatabaseConnection();
     try {
+        // Retrieve existing wishlist
         $existingWishList = getWishlist($username);
-        $newWishList = array();
 
-        foreach ($existingWishList as $item) {
-            if ($item != $item_id) {
-                $newWishList[] = $item;
-            }
+        // Depuração: Exibir conteúdo da wishlist existente
+        var_dump($existingWishList);
+
+        // Check if item is in the wishlist
+        if (!in_array($item_id, $existingWishList)) {
+            return true; // Item not in wishlist, nothing to remove
         }
 
-        $newWishList = implode(',', $newWishList);
+        // Remove item from wishlist
+        $newWishList = array_filter($existingWishList, function($item) use ($item_id) {
+            return $item != $item_id;
+        });
+        $newWishListString = implode(',', $newWishList);
+
+        // Depuração: Exibir nova wishlist
+        echo "New wishlist after removal: " . $newWishListString . "<br>";
+
+        // Update wishlist in database
         $stmt = $db->prepare('UPDATE user SET wishlist = ? WHERE username = ?');
-        $stmt->execute(array($newWishList, $username));
+        $stmt->execute(array($newWishListString, $username));
+
+        // Depuração: Verificar resultado da atualização no banco de dados
+        if ($stmt->rowCount() > 0) {
+            echo "Wishlist updated successfully.<br>";
+        } else {
+            echo "No rows affected.<br>";
+        }
 
         return true;
     } catch(PDOException $e) {
-        error_log("Error removing item from wishlist for $username: " . $e->getMessage()); // Adicionar log para depuração
+        echo "Error: " . $e->getMessage() . "<br>";
         return false;
     }
 }
+
 
 function getUserById($user_id)
 {
