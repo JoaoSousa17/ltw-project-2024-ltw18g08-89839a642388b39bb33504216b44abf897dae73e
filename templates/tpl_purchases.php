@@ -106,52 +106,94 @@
     <?php
 }*/
 
-function drawShopCart($username) { ?>
+function drawShopCart($username) {
+    $shopcartItems = getShopCart($username);
+    $current_user = getUser($username);
+    $currency = $current_user['currency'] ?? 'dollar'; // Moeda padrão se não estiver definida
+    ?>
     <div class="shopping-cart-container">
         <div class="shopping-cart-card">
             <h1 class="shopping-cart-title">Shopping Cart</h1>
             <section class="shopping-cart-items">
                 <?php
-                // Retrieve items in the shopping cart
-                $items = getShopCart($username);
-
-                // Check if the shopping cart is empty
-                if (empty($items)) {
-                    echo "<p>Your shopping cart is empty</p>";
+                if (!$shopcartItems || count($shopcartItems) == 0) {
+                    ?>
+                    <h2 id="EmptyWishlist">Your shopping cart is empty!</h2>
+                    <p>Try adding your first item to your shopping cart!</p>
+                    <?php
                 } else {
                     $totalPrice = 0;
-                    $totalShippingCost = 0;
+                    $totalShipping = 0;
                     $buyerLocation = getUserLocation($username);
 
-                    // Display items in the shopping cart
-                    foreach ($items as $item) {
-                        if (!$item) continue;
-                        $itemDetails = getItemById($item);
-                        $sellerLocation = getUserLocation(getUsernameById($itemDetails['seller_id']));
-                        $shippingCost = calculateShippingCost($sellerLocation, $buyerLocation);
-                        $totalShippingCost += $shippingCost;
-                        $totalPrice += $itemDetails['price'];
-                        ?>
-                        <div class="shopping-cart-item">
-                            <img src="/../database/images/items/thumbnails_medium/<?= $itemDetails['item_pictures'] ?>.jpg" alt="<?= $itemDetails['title'] ?>" class="shopping-cart-item-image">
-                            <div class="shopping-cart-item-details">
-                                <h2><a href="/../pages/item.php?id=<?= $itemDetails['item_id'] ?>"><?= $itemDetails['title'] ?></a></h2>
-                                <p class="shopping-cart-item-price">$<?= $itemDetails['price'] ?></p>
-                                <p class="shopping-cart-item-shipping"><span class="bold">Shipping Cost:</span> $<?= $shippingCost ?></p>
-                                <a class="remove-item-button" href="/../actions/action_remove_from_cart.php?id=<?= $itemDetails['item_id'] ?>">Remove</a>
-                            </div>
-                        </div>
-                        <?php
+                    // Agrupar itens por vendedor
+                    $itemsBySeller = [];
+                    foreach ($shopcartItems as $itemId) {
+                        $itemDetails = getItemById($itemId);
+                        if (!$itemDetails) continue;
+
+                        $sellerId = $itemDetails['seller_id'];
+                        if (!isset($itemsBySeller[$sellerId])) {
+                            $itemsBySeller[$sellerId] = [];
+                        }
+                        $itemsBySeller[$sellerId][] = $itemDetails;
                     }
-                    $totalPrice += $totalShippingCost;
+
+                    foreach ($itemsBySeller as $sellerId => $items) {
+                        $sellerLocation = getUserLocation(getUsernameById($sellerId));
+                        $itemCount = count($items);
+                        $discount = 0;
+
+                        if ($itemCount == 2) {
+                            $discount = 0.10; // 10% de desconto para 2 itens do mesmo vendedor
+                        } elseif ($itemCount >= 3) {
+                            $discount = 0.15; // 15% de desconto para 3 ou mais itens do mesmo vendedor
+                        }
+
+                        foreach ($items as $itemDetails) {
+                            $shippingCost = calculateShippingCost($sellerLocation, $buyerLocation);
+
+                            // Converter os preços e os custos de envio
+                            $originalPrice = floatval($itemDetails['price']);
+                            $discountedPrice = $originalPrice * (1 - $discount);
+                            $convertedPrice = convertCurrency($discountedPrice, 'dollar', $currency);
+                            $formattedPrice = formatCurrency($convertedPrice, $currency);
+
+                            $convertedShippingCost = convertCurrency($shippingCost, 'dollar', $currency);
+                            $formattedShippingCost = formatCurrency($convertedShippingCost, $currency);
+
+                            $totalPrice += $convertedPrice;
+                            $totalShipping += $convertedShippingCost;
+                            ?>
+                            <div class="shopping-cart-item">
+                                <img src="/../database/images/items/thumbnails_medium/<?= htmlspecialchars($itemDetails['item_pictures']) ?>.jpg" alt="<?= htmlspecialchars($itemDetails['title']) ?>" class="shopping-cart-item-image">
+                                <div class="shopping-cart-item-details">
+                                    <h2><a href="/../pages/item.php?id=<?= htmlspecialchars($itemDetails['item_id']) ?>"><?= htmlspecialchars($itemDetails['title']) ?></a></h2>
+                                    <p class="shopping-cart-item-price"><?= $formattedPrice ?></p>
+                                    <p class="shopping-cart-item-shipping">Shipping: <?= $formattedShippingCost ?></p>
+                                    <?php if ($discount > 0): ?>
+                                        <p class="shopping-cart-item-discount">Discount: <?= ($discount * 100) ?>%</p>
+                                    <?php endif; ?>
+                                    <div class="button-container">
+                                        <a class="remove-item-button" href="/../actions/action_remove_from_shopcart.php?id=<?= htmlspecialchars($itemDetails['item_id']) ?>">Remove</a>
+                                    </div>
+                                </div>
+                            </div>
+                            <?php
+                        }
+                    }
+                    $grandTotal = $totalPrice + $totalShipping;
+                    $formattedTotalPrice = formatCurrency($totalPrice, $currency);
+                    $formattedTotalShipping = formatCurrency($totalShipping, $currency);
+                    $formattedGrandTotal = formatCurrency($grandTotal, $currency);
                     ?>
                     <div class="shopping-cart-total">
-                        <p><span class="bold">Total Items Price:</span> $<?= $totalPrice - $totalShippingCost ?></p>
-                        <p><span class="bold">Total Shipping Cost:</span> $<?= $totalShippingCost ?></p>
-                        <p><span class="bold">Total:</span> $<?= $totalPrice ?></p>
+                        Subtotal: <?= $formattedTotalPrice ?><br>
+                        Shipping: <?= $formattedTotalShipping ?><br>
+                        Total: <?= $formattedGrandTotal ?>
                     </div>
                     <div class="shopping-cart-checkout">
-                        <a href="/../pages/payment.php" id="checkout-button">Check-Out</a>
+                        <a id="checkout-button" href="/../pages/payment.php">Checkout</a>
                     </div>
                     <?php
                 }
@@ -159,7 +201,9 @@ function drawShopCart($username) { ?>
             </section>
         </div>
     </div>
-<?php }
+    <?php
+}
+
 
 
 
