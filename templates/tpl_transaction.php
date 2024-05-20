@@ -8,6 +8,9 @@ function drawRecipe($transaction_id)
         return;
     }
 
+    $currentUser = getCurrentUser();
+    $currency = $currentUser ? $currentUser['currency'] : 'dollar';
+
     $sellers = separateSellers($transaction['seller_id']);
     if (!$sellers) {
         echo 'No sellers found.';
@@ -28,12 +31,18 @@ function drawRecipe($transaction_id)
                     $itemDetails = getItemById($item);
                     if (!$itemDetails) continue;
                     $sellerDetails = getSellerByItemId($item);
+                    if (is_numeric($itemDetails['price'])) {
+                        $convertedPrice = convertCurrency(floatval($itemDetails['price']), 'dollar', $currency);
+                        $formattedPrice = formatCurrency($convertedPrice, $currency);
+                    } else {
+                        $formattedPrice = "N/A";
+                    }
                     ?>
                     <div class="recipe-item">
                         <img src='/../database/images/items/thumbnails_medium/<?= htmlspecialchars($itemDetails['item_pictures']) ?>.jpg' alt='<?= htmlspecialchars($itemDetails['title']) ?>' class="recipe-item-image">
                         <div class="recipe-item-details">
                             <p class="recipe-item-title"><a href='/../pages/item.php?id=<?= htmlspecialchars($itemDetails['item_id']) ?>'><?= htmlspecialchars($itemDetails['title']) ?></a></p>
-                            <p class="recipe-item-price">$<?= htmlspecialchars($itemDetails['price']) ?></p>
+                            <p class="recipe-item-price"><?= $formattedPrice ?></p>
                             <p class="recipe-item-seller"><a href='/../pages/profile.php?id=<?= htmlspecialchars($sellerDetails['username']) ?>'><?= htmlspecialchars($sellerDetails['username']) ?></a></p>
                         </div>
                     </div>
@@ -53,6 +62,7 @@ function drawRecipe($transaction_id)
     </div>
     <?php
 }
+
 
 
 function drawHistory($username)

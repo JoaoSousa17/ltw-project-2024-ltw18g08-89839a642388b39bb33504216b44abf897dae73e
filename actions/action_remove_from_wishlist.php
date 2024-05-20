@@ -5,12 +5,17 @@ include_once (__DIR__ . '/../database/user.php'); // Include user-related functi
 
 $username = getCurrentUser();
 
-$item_id = $_GET['id'];
+if (!is_string($username)) {
+    error_log('Error: username is not a string');
+    echo "Invalid user session.";
+    exit;
+}
 
+$item_id = $_GET['id'];
 
 if (removeFromWishList($username, $item_id)) {
     header('Location: ../pages/wishlist.php');
-
 } else {
-    echo "Failed to remove item from cart";
+    echo "Failed to remove item from wishlist";
 }
+?>

@@ -1,5 +1,5 @@
 <?php
-function drawShopCart($username) {
+/*function drawShopCart($username) {
     $shopcartItems = getShopCart($username);
     $current_user = getUser($username);
     $currency = $current_user['currency'] ?? 'dollar'; // Moeda padrão se não estiver definida
@@ -104,7 +104,64 @@ function drawShopCart($username) {
         </div>
     </div>
     <?php
-}
+}*/
+
+function drawShopCart($username) { ?>
+    <div class="shopping-cart-container">
+        <div class="shopping-cart-card">
+            <h1 class="shopping-cart-title">Shopping Cart</h1>
+            <section class="shopping-cart-items">
+                <?php
+                // Retrieve items in the shopping cart
+                $items = getShopCart($username);
+
+                // Check if the shopping cart is empty
+                if (empty($items)) {
+                    echo "<p>Your shopping cart is empty</p>";
+                } else {
+                    $totalPrice = 0;
+                    $totalShippingCost = 0;
+                    $buyerLocation = getUserLocation($username);
+
+                    // Display items in the shopping cart
+                    foreach ($items as $item) {
+                        if (!$item) continue;
+                        $itemDetails = getItemById($item);
+                        $sellerLocation = getUserLocation(getUsernameById($itemDetails['seller_id']));
+                        $shippingCost = calculateShippingCost($sellerLocation, $buyerLocation);
+                        $totalShippingCost += $shippingCost;
+                        $totalPrice += $itemDetails['price'];
+                        ?>
+                        <div class="shopping-cart-item">
+                            <img src="/../database/images/items/thumbnails_medium/<?= $itemDetails['item_pictures'] ?>.jpg" alt="<?= $itemDetails['title'] ?>" class="shopping-cart-item-image">
+                            <div class="shopping-cart-item-details">
+                                <h2><a href="/../pages/item.php?id=<?= $itemDetails['item_id'] ?>"><?= $itemDetails['title'] ?></a></h2>
+                                <p class="shopping-cart-item-price">$<?= $itemDetails['price'] ?></p>
+                                <p class="shopping-cart-item-shipping"><span class="bold">Shipping Cost:</span> $<?= $shippingCost ?></p>
+                                <a class="remove-item-button" href="/../actions/action_remove_from_cart.php?id=<?= $itemDetails['item_id'] ?>">Remove</a>
+                            </div>
+                        </div>
+                        <?php
+                    }
+                    $totalPrice += $totalShippingCost;
+                    ?>
+                    <div class="shopping-cart-total">
+                        <p><span class="bold">Total Items Price:</span> $<?= $totalPrice - $totalShippingCost ?></p>
+                        <p><span class="bold">Total Shipping Cost:</span> $<?= $totalShippingCost ?></p>
+                        <p><span class="bold">Total:</span> $<?= $totalPrice ?></p>
+                    </div>
+                    <div class="shopping-cart-checkout">
+                        <a href="/../pages/payment.php" id="checkout-button">Check-Out</a>
+                    </div>
+                    <?php
+                }
+                ?>
+            </section>
+        </div>
+    </div>
+<?php }
+
+
 
 function drawPayment() { ?>
     <div class="payment-container">

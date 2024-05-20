@@ -55,6 +55,8 @@ function drawBoughtItems($username) {
     $user_id = $user['user_id'];
     $transactions = getBoughtItems($user_id);
 
+    $currentUser = getCurrentUser();
+    $currency = $currentUser ? $currentUser['currency'] : 'dollar';
     ?>
     <div class="bought-items-container">
         <div class="bought-items-card">
@@ -71,12 +73,18 @@ function drawBoughtItems($username) {
                         $items = separateItems($transaction['item_id']);
                         foreach ($items as $item_id) {
                             $item = getItemById($item_id);
+                            if (is_numeric($item['price'])) {
+                                $convertedPrice = convertCurrency(floatval($item['price']), 'dollar', $currency);
+                                $formattedPrice = formatCurrency($convertedPrice, $currency);
+                            } else {
+                                $formattedPrice = "N/A";
+                            }
                             ?>
                             <div class="bought-item">
                                 <img src="/../database/images/items/thumbnails_medium/<?= htmlspecialchars($item['item_pictures']) ?>.jpg" alt="<?= htmlspecialchars($item['title']) ?>" class="bought-item-image">
                                 <div class="bought-item-details">
                                     <h2><a href="/../pages/item.php?id=<?= htmlspecialchars($item['item_id']) ?>"><?= htmlspecialchars($item['title']) ?></a></h2>
-                                    <p class="bought-item-price">$<?= htmlspecialchars($item['price']) ?></p>
+                                    <p class="bought-item-price"><?= $formattedPrice ?></p>
                                     <p class="bought-item-transaction-date">Purchased on: <?= htmlspecialchars(transData($transaction['transaction_date'])) ?></p>
                                 </div>
                             </div>
@@ -90,6 +98,7 @@ function drawBoughtItems($username) {
     </div>
     <?php
 }
+
 
 function drawSoldItems($username) {
     $user = getUser($username);

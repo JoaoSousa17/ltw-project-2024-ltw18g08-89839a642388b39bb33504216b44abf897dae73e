@@ -1,28 +1,10 @@
-<?php/*
-include_once(__DIR__ .'/../templates/tpl_basic.php');
-include_once (__DIR__ . '/../templates/tpl_item.php');
-include_once (__DIR__ . '/../templates/tpl_profile.php');
-include_once(__DIR__ . '/../utils/session.php');
-include_once (__DIR__ . '/../database/item.php');
-include_once (__DIR__ . '/../database/user.php');
-
-$username = $_SESSION['username'] ?? NULL;
-
-if (!$username) {
-    header('Location: ../pages/login.php');
-}
-
-drawHeader($username);
-drawWishlist($username);
-drawFooter();*/
-?>
-
 <?php
 include_once(__DIR__ . '/../templates/tpl_basic.php');
 include_once(__DIR__ . '/../templates/tpl_item.php');
 include_once(__DIR__ . '/../utils/session.php');
 include_once(__DIR__ . '/../database/item.php');
 include_once(__DIR__ . '/../database/user.php');
+include_once(__DIR__ . '/../database/currency.php');
 
 $username = $_SESSION['username'] ?? NULL;
 
@@ -58,12 +40,12 @@ function drawWishlist($username) { ?>
                         $itemDetails = getItemById($item);
                         ?>
                         <div class="wishlist-item">
-                            <img src="/../database/images/items/thumbnails_medium/<?= $itemDetails['item_pictures'] ?>.jpg" alt="<?= $itemDetails['title'] ?>" class="wishlist-item-image">
+                            <img src="/../database/images/items/thumbnails_medium/<?= htmlspecialchars($itemDetails['item_pictures']) ?>.jpg" alt="<?= htmlspecialchars($itemDetails['title']) ?>" class="wishlist-item-image">
                             <div class="wishlist-item-details">
-                                <h2 id="wishlist-item-title"><a href="/../pages/item.php?id=<?= $itemDetails['item_id'] ?>"><?= $itemDetails['title'] ?></a></h2>
-                                <p class="wishlist-item-price">$<?= $itemDetails['price'] ?></p>
+                                <h2 id="wishlist-item-title"><a href="/../pages/item.php?id=<?= htmlspecialchars($itemDetails['item_id']) ?>"><?= htmlspecialchars($itemDetails['title']) ?></a></h2>
+                                <p class="wishlist-item-price">$<?= htmlspecialchars($itemDetails['price']) ?></p>
                                 <div class="button-container">
-                                    <a class="remove-item-button" href="/../actions/action_remove_from_wishlist.php?id=<?= $itemDetails['item_id'] ?>">Remove</a>
+                                    <a class="remove-item-button" href="/../actions/action_remove_from_wishlist.php?id=<?= htmlspecialchars($itemDetails['item_id']) ?>">Remove</a>
                                 </div>
                             </div>
                         </div>

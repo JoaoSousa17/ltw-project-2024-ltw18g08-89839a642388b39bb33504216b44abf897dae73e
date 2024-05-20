@@ -177,7 +177,7 @@ function drawWishlist($username) { ?>
         </div>
     </div>
 <?php }*/
-
+/*
 function drawWishlist($username) { ?>
     <div class="wishlist-container">
         <div class="wishlist-card">
@@ -215,7 +215,56 @@ function drawWishlist($username) { ?>
             </section>
         </div>
     </div>
-<?php }
+<?php }*/
+
+function drawWishlist($username) {
+    $currentUser = getCurrentUser();
+    $currency = $currentUser ? $currentUser['currency'] : 'dollar';
+    ?>
+    <div class="wishlist-container">
+        <div class="wishlist-card">
+            <h1 class="wishlist-title">Wishlist</h1>
+            <section class="wishlist-items">
+                <?php
+                $items = getWishlist($username);
+
+                if (!$items || count($items) == 0)  {
+                    ?><h2 id="EmptyWishlist">Your wishlist is empty!</h2>
+                    <p>Try adding your first item to your wishlist!</p>
+                    <?php
+                } else {
+                    foreach ($items as $item) {
+                        if (!$item) continue;
+                        $itemDetails = getItemById($item);
+                        if (!$itemDetails || $itemDetails['status'] == 'sold') continue;
+                        if (is_numeric($itemDetails['price'])) {
+                            $convertedPrice = convertCurrency(floatval($itemDetails['price']), 'dollar', $currency);
+                            $formattedPrice = formatCurrency($convertedPrice, $currency);
+                        } else {
+                            $formattedPrice = "N/A";
+                        }
+                        ?>
+                        <div class="wishlist-item">
+                            <img src="/../database/images/items/thumbnails_medium/<?= htmlspecialchars($itemDetails['item_pictures']) ?>.jpg" alt="<?= htmlspecialchars($itemDetails['title']) ?>" class="wishlist-item-image">
+                            <div class="wishlist-item-details">
+                                <h2 id="wishlist-item-title"><a href="/../pages/item.php?id=<?= htmlspecialchars($itemDetails['item_id']) ?>"><?= htmlspecialchars($itemDetails['title']) ?></a></h2>
+                                <p class="wishlist-item-price"><?= $formattedPrice ?></p>
+                                <div class="button-container">
+                                    <a class="remove-item-button" href="/../actions/action_remove_from_wishlist.php?id=<?= htmlspecialchars($itemDetails['item_id']) ?>">Remove</a>
+                                </div>
+                            </div>
+                        </div>
+                        <?php
+                    }
+                }
+                ?>
+            </section>
+        </div>
+    </div>
+    <?php
+}
+
+
 
 
 function drawMessages($username){

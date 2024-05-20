@@ -1,5 +1,5 @@
 <?php
-function convertCurrency($amount, $fromCurrency, $toCurrency) {
+function convertCurrency($amount, $fromCurrency, $toCurrency = 'dollar') {
     // Define as taxas de câmbio em relação ao dólar
     $exchangeRates = [
         'dollar' => 1,

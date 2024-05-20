@@ -64,6 +64,7 @@ function drawSpecificCategory($categoryId) {
     }
 
     $currentUser = getCurrentUser();
+    $currency = $currentUser ? $currentUser['currency'] : 'dollar';
     $isAdmin = isset($currentUser['is_admin']) ? $currentUser['is_admin'] : false;
     ?>
     <div class="category-items-container">
@@ -75,12 +76,18 @@ function drawSpecificCategory($categoryId) {
                 echo "<p>No items found in this category.</p>";
             } else {
                 foreach ($items as $item) {
+                    if (is_numeric($item['price'])) {
+                        $convertedPrice = convertCurrency(floatval($item['price']), 'dollar', $currency);
+                        $formattedPrice = formatCurrency($convertedPrice, $currency);
+                    } else {
+                        $formattedPrice = "N/A";
+                    }
                     ?>
                     <div class="category-item">
                         <img src="/../database/images/items/thumbnails_medium/<?= htmlspecialchars($item['item_pictures']) ?>.jpg" alt="<?= htmlspecialchars($item['title']) ?>" class="category-item-image">
                         <div class="category-item-details">
                             <h3 id="category-item-title"><a href="/../pages/item.php?id=<?= htmlspecialchars($item['item_id']) ?>"><?= htmlspecialchars($item['title']) ?></a></h3>
-                            <p class="category-item-price">$<?= htmlspecialchars($item['price']) ?></p>
+                            <p class="category-item-price"><?= $formattedPrice ?></p>
                         </div>
                     </div>
                     <?php
@@ -91,6 +98,7 @@ function drawSpecificCategory($categoryId) {
     </div>
     <?php
 }
+
 
 function drawCategoriesAddForm(){ ?>
     <section class="background">

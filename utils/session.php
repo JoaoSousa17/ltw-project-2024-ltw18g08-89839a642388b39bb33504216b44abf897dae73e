@@ -9,7 +9,10 @@ function getCurrentUser() {
         $stmt = $db->prepare('SELECT username, currency, is_admin FROM user WHERE username = ?');
         $stmt->execute([$_SESSION['username']]);
         $user = $stmt->fetch(PDO::FETCH_ASSOC);
-        return $user ? $user : null;
+        if ($user) {
+            $user['currency'] = $user['currency'] ?? 'dollar'; // Define 'dollar' como valor padrão se a moeda não estiver definida
+            return $user;
+        }
     }
     return null;
 }

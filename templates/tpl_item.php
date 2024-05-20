@@ -36,7 +36,7 @@ function drawItemPage($item_id) {
 
             <div class="item-photo-container">
                 <img id="item-thumb" src="/../database/images/items/originals/<?= htmlspecialchars($item['item_pictures']) ?>.jpg" alt="<?= htmlspecialchars($item['title']) ?>" class="item-photo"><?php
-                if (!($current_user && ($seller_username == $current_user['username'] || isAdmin($current_user['username'])))){
+                if (!($current_user && ($seller_username == $current_user['username']))){
                     ?><div class="item-actions">
                         <a href="/../actions/action_add_shopcart.php?id=<?= $item['item_id'] ?>" class="item-action-button">Buy</a>
                         <a href="/../actions/action_add_wishlist.php?id=<?= $item['item_id'] ?>" class="item-action-button">Add to Wishlist</a>

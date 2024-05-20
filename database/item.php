@@ -3,12 +3,13 @@ include_once(__DIR__ . "/../database/connection.db.php");
 include_once (__DIR__ . '/../database/db_upload.php');
 include_once (__DIR__ . '/../database/user.php');
 
-function getItems($count){
+function getItems($count) {
     $db = getDatabaseConnection();
-    $stmt = $db->prepare('SELECT * FROM item ORDER BY item_id DESC LIMIT ?');
-    $stmt->execute(array($count));
+    $stmt = $db->prepare('SELECT * FROM item WHERE status != ? ORDER BY item_id DESC LIMIT ?');
+    $stmt->execute(['sold', $count]);
     return $stmt->fetchAll();
 }
+
 
 function getCategories() {
     $db = getDatabaseConnection();
@@ -124,12 +125,13 @@ function getItemByTitle($search = null, $category = null, $priceRange = null) {
     }
 }
 
-function getItemsByCategory($category_id){
+function getItemsByCategory($category_id) {
     $db = getDatabaseConnection();
-    $stmt = $db->prepare('SELECT * FROM item WHERE category_id = ?');
-    $stmt->execute(array($category_id));
+    $stmt = $db->prepare('SELECT * FROM item WHERE category_id = ? AND status != ?');
+    $stmt->execute(array($category_id, 'sold'));
     return $stmt->fetchAll();
 }
+
 
 function getItemsByUserId($user_id){
     $db = getDatabaseConnection();
